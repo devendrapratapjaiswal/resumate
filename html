@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generate Resume</title>
+</head>
+<body>
+    <script>
+        function generatePDF() {
+            var apiKey = "YOUR_CLOUDCONVERT_API_KEY";
+
+            var resumeData = "Name: " + new URLSearchParams(window.location.search).get("name") + "\n" +
+                             "Email: " + new URLSearchParams(window.location.search).get("email") + "\n" +
+                             "Experience: " + new URLSearchParams(window.location.search).get("experience") + "\n" +
+                             "Education: " + new URLSearchParams(window.location.search).get("education") + "\n" +
+                             "Skills: " + new URLSearchParams(window.location.search).get("skills");
+
+            var requestData = {
+                "tasks": {
+                    "convert": {
+                        "operation": "convert",
+                        "input_format": "txt",
+                        "output_format": "pdf",
+                        "engine": "office",
+                        "input": "upload",
+                        "content": resumeData
+                    }
+                }
+            };
+
+            fetch("https://api.cloudconvert.com/v2/jobs", {
+                method: "POST",
+                headers: {
+                    "Authorization": "Bearer " + apiKey,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(requestData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                var pdfUrl = data.data.tasks[0].result.files[0].url;
+                window.location.href = pdfUrl;
+            })
+            .catch(error => console.error("Error:", error));
+        }
+
+        generatePDF();
+    </script>
+</body>
+</html>
